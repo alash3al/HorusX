@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Get latest news about anything in real-time" />
+        <meta name="author" content="RSS Feeds" />
+        <link rel="shortcut icon" type="image/x-icon" href="http://icons.iconarchive.com/icons/danleech/simple/32/rss-icon.png" />
+
+        <title>Newsly | News Search Engine</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/flatly/bootstrap.min.css" rel="stylesheet" />
+        <!-- Add lobaster font CSS here -->
+        <link href="//fonts.googleapis.com/css?family=Lobster|Cabin:400,700" rel="stylesheet" />
+        <!-- Add font awesome CSS -->
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet" />
+
+        <style>
+            .font-lobaster {font-family: "Lobster";}
+            body{padding: 5px;}
+        </style>
+
+    </head>
+    <body>
+
+        <div class="container center-block" style="max-width: 650px;">
+
+            <h1 class="text-center page-header font-lobaster"><span class="fa fa-rss"></span> Newsly <span class="badge" id="count"></span></h1>
+            <input class="form-control" type="text" placeholder="write and hit enter, e.g: sports, 'news' .. etc" id="q" />
+            <br />
+            <div id="results"></div>
+            <br />
+            <div class="panel panel-default" style="padding: 15px;">
+               <ul>
+                    <li>Write then press enter, e.g: <code>مصر</code> .</li>
+                    <li>You can search like google, e.g: <code>site:facebook.com</code></li>
+               </ul>
+               <hr />
+               <b class="text-center text-muted center-block"><small>Maintained by <a target="_blank" href="//alash3al.github.io/Me">@alash3al</a></small></b>
+            </div>
+
+        </div>
+
+    <!-- JavaScript -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script>
+
+        /**
+         * Check if string has an arabic char
+         * @author Mohammed Alashaal <fb.com/alash3al>
+         * @param element str
+         * @return bool
+         */
+        function has_ar(str)
+        {
+            var x = /[\u0600-\u06FF]+/;
+            return x.test(str);
+        }
+
+        $.fn.autodir = function(){
+            if ( has_ar(this.val()) )
+                this.attr('dir', 'rtl');
+            else
+                this.attr('dir', 'ltr');
+            return this;  
+        };
+
+        $(document).ready(function(){
+
+
+            $('#q').keydown(function(e)
+            {
+                $(this).autodir();
+                if ( e.keyCode == '13' && $(this).val().length >= 3 )
+                {
+                    $('#results').html('');
+                    $.ajax
+                    ({
+                        crossDomain: true,
+                        dataType: 'Jsonp',
+                        url: 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&num=25&q='+encodeURIComponent($(this).val()),
+                        success: function(r){
+                            $i = 1;
+                            var $entries = r.responseData.entries;
+                            for ( $k in $entries )
+                            {
+                                $RTL   = (has_ar($entries[$k]['contentSnippet']) || has_ar($entries[$k]['title'])) ? 'rtl' : 'ltr';
+                                $item  = '<div dir="'+$RTL+'" class="panel panel-default" style="padding: 15px">';
+                                $item += '<h4><a target="_blank" href="'+$entries[$k]['link']+'">'+$entries[$k]['title']+'</a></h4>';
+                                $item += '<p>'+$entries[$k]['contentSnippet']+'</p>';
+                                $('#results').append($item);
+                                ++ $i;
+                                $('#count').html(''+$i+'');
+                            }
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+    </body>
+</html>
