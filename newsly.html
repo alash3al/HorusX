@@ -5,11 +5,11 @@
 
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Get latest news about anything in real-time" />
+        <meta name="description" content="Get latest web entries about anything in real-time" />
         <meta name="author" content="RSS Feeds" />
         <link rel="shortcut icon" type="image/x-icon" href="http://icons.iconarchive.com/icons/danleech/simple/32/rss-icon.png" />
 
-        <title>Newsly | News Search Engine</title>
+        <title>RSSly | RSS Search Engine</title>
 
         <!-- Bootstrap core CSS -->
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/flatly/bootstrap.min.css" rel="stylesheet" />
@@ -28,7 +28,7 @@
 
         <div class="container center-block" style="max-width: 650px;">
 
-            <h1 class="text-center page-header font-lobaster"><span class="fa fa-rss"></span> Newsly <span class="badge" id="count"></span></h1>
+            <h1 class="text-center page-header font-lobaster"><span class="fa fa-rss"></span> RSSly <span class="badge" id="count"></span></h1>
             <input class="form-control" type="text" placeholder="write and hit enter, e.g: sports, 'news' .. etc" id="q" />
             <br />
             <div id="results"></div>
@@ -84,7 +84,8 @@
                         dataType: 'Jsonp',
                         url: 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&num=25&q='+encodeURIComponent($(this).val()),
                         success: function(r){
-                            $i = 1;
+                            console.log(r);
+                            /*$i = 1;
                             var $entries = r.responseData.entries;
                             for ( $k in $entries )
                             {
@@ -95,7 +96,7 @@
                                 $('#results').append($item);
                                 ++ $i;
                                 $('#count').html(''+$i+'');
-                            }
+                            }*/
                         }
                     });
                 }
