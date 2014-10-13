@@ -1,15 +1,19 @@
+<!--
+    Don't steal anything { man } ^_^
+    Author: Mohammed Al Ashaal,
+    license: publish the link, put don't re-publish the source-code ;)
+    Copyright: 2014
+-->
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
-
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Get latest web entries about anything in real-time" />
+        <meta name="description" content="Lets know what is going in the whole world in real time, just search to know" />
         <meta name="author" content="RSS Feeds" />
-        <link rel="shortcut icon" type="image/x-icon" href="http://icons.iconarchive.com/icons/danleech/simple/32/rss-icon.png" />
+        <link rel="shortcut icon" type="image/x-icon" href="http://icons.iconarchive.com/icons/pelfusion/long-shadow-ios7/32/News-icon.png" />
 
-        <title>RSSly | RSS Search Engine</title>
+        <title>Newsly | What is new in the world news ?</title>
 
         <!-- Bootstrap core CSS -->
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/flatly/bootstrap.min.css" rel="stylesheet" />
@@ -19,7 +23,7 @@
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet" />
 
         <style>
-            .font-lobaster {font-family: "Lobster";}
+            .font-lobaster{font-family: "Lobster";}
             body{padding: 5px;}
         </style>
 
@@ -28,10 +32,12 @@
 
         <div class="container center-block" style="max-width: 650px;">
 
-            <h1 class="text-center page-header font-lobaster"><span class="fa fa-rss"></span> RSSly <span class="badge" id="count"></span></h1>
+            <h1 class="text-center page-header font-lobaster"><span class="fa fa-bell"></span> Newsly</span></h1>
             <input class="form-control" type="text" placeholder="write and hit enter, e.g: sports, 'news' .. etc" id="q" />
             <br />
             <div id="results"></div>
+            <div id="more" class="form-control btn btn-success hidden">load more 8 items</div>
+            <br />
             <br />
             <div class="panel panel-default" style="padding: 15px;">
                <ul>
@@ -39,7 +45,7 @@
                     <li>You can search like google, e.g: <code>site:facebook.com</code></li>
                </ul>
                <hr />
-               <b class="text-center text-muted center-block"><small>Maintained by <a target="_blank" href="//alash3al.github.io/Me">@alash3al</a>, part of <a target="_blank" href="//alash3al.github.io/HorusX">HorusX</a></small></b>
+               <b class="text-center text-muted center-block"><small>Maintained by <a target="_blank" href="//alash3al.github.io/Me">@alash3al</a><!-- , part of <a target="_blank" href="//alash3al.github.io/HorusX">HorusX</a> --></small></b>
             </div>
 
         </div>
@@ -61,6 +67,11 @@
             return x.test(str);
         }
 
+        /**
+         * Auto Detect content direction [supports 'ar, en']
+         * @author Mohammed Alashaal <fb.com/alash3al>
+         * @return jQuery
+         */
         $.fn.autodir = function(){
             if ( has_ar(this.val()) )
                 this.attr('dir', 'rtl');
@@ -69,39 +80,76 @@
             return this;  
         };
 
+        /**
+         * Fetch results from google news api
+         * @author Mohammed Alashaal <fb.com/alash3al>
+         * @return jQuery
+         */
+        $.fn.getResults = function($query, $start, $limit)
+        {
+            $this = this;
+            $start = typeof $start == 'undefined' ? 0 : $start;
+            $limit = typeof $limit == 'undefined' ? 8 : $limit;
+            $.ajax
+            ({
+                crossDomain: true,
+                dataType: 'Jsonp',
+                url: 'https://ajax.googleapis.com/ajax/services/search/news?v=1.0&start='+$start+'&rsz='+$limit+'&q='+encodeURIComponent($query),//'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&num=25&q='+encodeURIComponent($(this).val()),
+                success: function(r)
+                {
+                    //return console.log(r);
+                    $i = 1;
+                    var $entries = r.responseData.results;
+                    for ( $k in $entries )
+                    {
+                        $RTL   = (has_ar($entries[$k]['content']) || has_ar($entries[$k]['title'])) ? 'rtl' : 'ltr';
+                        
+                        $item  = '<div dir="'+$RTL+'" class="panel panel-default" style="padding: 15px">';
+                        $item += '<h4><a target="_blank" href="'+decodeURIComponent($entries[$k]['url'])+'">'+$entries[$k]['title']+'</a></h4>';
+                        $item += '<p>'+$entries[$k]['content']+'</p>';
+                        $item += '<a dir="ltr" class="text-success" href="'+decodeURIComponent($entries[$k]['url'])+'">'+decodeURIComponent($entries[$k]['url']).substr(0, 50)+' ...</a>';
+                        $item += '</div>';
+                        
+                        $this.append($item);
+                        ++ $i;
+                    }
+                }
+            });
+
+            return this;
+        }
+
+        // ---------------------------------------
+
         $(document).ready(function(){
 
+            $start = 0;
 
             $('#q').keydown(function(e)
             {
                 $(this).autodir();
-                if ( e.keyCode == '13' && $(this).val().length >= 3 )
+                $('#more').addClass('hidden');
+
+                if ( e.keyCode == '13' && $(this).val().length >= 2 )
                 {
                     $('#results').html('');
-                    $.ajax
-                    ({
-                        crossDomain: true,
-                        dataType: 'Jsonp',
-                        url: 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&num=25&q='+encodeURIComponent($(this).val()),
-                        success: function(r){
-                            console.log(r);
-                            /*$i = 1;
-                            var $entries = r.responseData.entries;
-                            for ( $k in $entries )
-                            {
-                                $RTL   = (has_ar($entries[$k]['contentSnippet']) || has_ar($entries[$k]['title'])) ? 'rtl' : 'ltr';
-                                $item  = '<div dir="'+$RTL+'" class="panel panel-default" style="padding: 15px">';
-                                $item += '<h4><a target="_blank" href="'+$entries[$k]['link']+'">'+$entries[$k]['title']+'</a></h4>';
-                                $item += '<p>'+$entries[$k]['contentSnippet']+'</p>';
-                                $('#results').append($item);
-                                ++ $i;
-                                $('#count').html(''+$i+'');
-                            }*/
-                        }
-                    });
+                    $('#results').getResults($(this).val(), $start);
+                    $('#more').removeClass('hidden');
+                }
+                else
+                {
+                    $('#more').addClass('hidden');
                 }
             });
 
+            $('#more').click(function()
+            {
+                if ( $('#q').val().length >= 3 )
+                {
+                    $start += 8;
+                    $('#results').getResults($('#q').val(), $start);
+                }
+            });
         });
     </script>
     </body>
