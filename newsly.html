@@ -124,14 +124,15 @@
 
         $(document).ready(function(){
 
-            $start = 0;
+            $start          =   0;
+            $min_keywords   =   1;
 
             $('#q').keydown(function(e)
             {
                 $(this).autodir();
                 $('#more').addClass('hidden');
 
-                if ( e.keyCode == '13' && $(this).val().length >= 2 )
+                if ( e.keyCode == '13' && $(this).val().length >= $min_keywords )
                 {
                     $('#results').html('');
                     $('#results').getResults($(this).val(), $start);
@@ -145,7 +146,7 @@
 
             $('#more').click(function()
             {
-                if ( $('#q').val().length >= 3 )
+                if ( $('#q').val().length >= $min_keywords )
                 {
                     $start += 8;
                     $('#results').getResults($('#q').val(), $start);
