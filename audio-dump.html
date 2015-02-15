@@ -27,7 +27,14 @@
             <h1 class="text-center font-lobaster">Audio Dumper</h1>
             <hr />
 
-            <input type="file" accept="audio/*" class="form-control" id="audio_file" />
+            <div class="row">
+                <div class="col-md-9">
+                    <input type="file" accept="audio/*" class="form-control" id="audio_file" />
+                </div>
+                <div class="col-md-3">
+                    <button id="load" class="btn btn-success form-control"><span class="fa fa-cloud-upload"></span> Upload</button>
+                </div>
+            </div>
             <br />
             <textarea id="writer" class="form-control" style="min-height: 100px; max-width: 100%;"></textarea>
             <br />
@@ -94,29 +101,27 @@
             // when the window is ready .
             window.onload = function()
             {
-                if ( typeof store.get('writer') == 'undefined' ) {
+                if ( typeof store.get('writer') == 'undefined' || typeof store.get('played') == 'undefined' ) {
                     store.set('writer', '');
                     store.set('played', 0);
-                    store.set('src', '');
                 }
 
                 $writer         =   document.getElementById('writer');
                 $writer.value   =   store.get('writer');
                 $audio          =   document.getElementById('audio_src');
-                $audio.src      =   store.get('src');
+                $uploader       =   document.getElementById('audio_file');
+                $load           =   document.getElementById('load');
 
                 // --------------------
 
-                document.getElementById('audio_file').addEventListener('change', function(uploader)
+                $load.addEventListener('click', function()
                 {
-                    document.title += ' -- ' + document.getElementById('audio_file').value;
+                    document.title += ' -- ' + $uploader.value;
+                    store.set('audio', $uploader.value);
                     $type = 'audio/' + document.title.split('.').pop();
-                    file2base64(uploader.target.files[0], $type, function(src)
+                    file2base64($uploader.files[0], $type, function(src)
                     {
-                        console.log('now playing');
                         $audio.src      =   src;
-                        $audio.played   =   store.get('played');
-                        store.set('src', src);
                         $audio.play();
                     });
                 }, false);
