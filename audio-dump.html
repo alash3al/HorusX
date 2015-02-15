@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Dump audio files online" />
+        <meta name="author" content="Audio Dumper" />
+
+        <title>Audio Dumper</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/cosmo/bootstrap.min.css" rel="stylesheet" />
+        <!-- Add lobaster font CSS here -->
+        <link href="//fonts.googleapis.com/css?family=Lobster|Cabin:400,700" rel="stylesheet" />
+        <!-- Add font awesome CSS -->
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet" />
+
+        <style>
+            .font-lobaster {font-family: "Lobster";}
+            body{padding: 5px;}
+        </style>
+
+    </head>
+    <body>
+
+        <div class="container center-block" style="max-width: 650px;">
+            <h1 class="text-center font-lobaster">Audio Dumper</h1>
+            <hr />
+
+            <input type="file" accept="audio/*" class="form-control" id="audio_file" />
+            <br />
+            <textarea id="writer" class="form-control" style="min-height: 100px;"></textarea>
+            <br />
+            <audio src="" id="audio_src" controls="" autoplay="" style="width: 100%;">
+                <p>Your browser does not support the audio element </p>
+            </audio>
+            <br /><br />
+            <div class="panel panel-default" style="padding: 15px;">
+                <ul>
+                    <li>Play|Pause: <code>F5/space</code> .</li>
+                    <li>Next: <code>right</code> .</li>
+                    <li>Prev: <code>left</code> .</li>
+                    <li>Inrease volume: <code>up/+</code> .</li>
+                    <li>Decrease volume: <code>down/-</code> .</li>
+                </ul>
+            </div>
+            <hr />
+            <div class="text-center" style="15px">
+                Maintained by <a target="_blank" href="//fb.com/alash3al">@Mohammed Al Ashaal</a>
+            </div>
+        </div>
+
+        <!--  Pure javascript -->
+        <!--
+        Copyright (c) 2015, Mohammed Al Ashaal
+        License MIT License
+        -->
+        <script>
+
+            // convert file to base64
+            // forked from <jsfiddle.net/eliseosoto/JHQnk/>
+            // and edited by Mohammed Al Ashaal <is.gd/alash3al>
+            function file2base64(file, mime_type, callback)
+            {
+                reader = new FileReader();
+                reader.onload = function(readerEvt) {
+                    console.log('initializing ...');
+                    binaryString = readerEvt.target.result;
+                    console.log('loading ...');
+                    callback('data:'+mime_type+';base64,'+ btoa(binaryString));
+                    console.log('loaded successfully');
+                };
+                reader.readAsBinaryString(file);
+            }
+
+            // --------------------
+
+            // is string has arabic char or not ?
+            // from <https://gist.github.com/alash3al/7408cbf3df69b2f6d7a7>
+            // by Mohammed Al Ashaal <is.gd/alash3al>
+            function has_ar(str)
+            {
+                var x = /[\u0600-\u06FF]+/;
+                return x.test(str);
+            }
+
+            // --------------------
+
+            // lets start our logic
+            // when the window is ready .
+            window.onload = function()
+            {
+                $audio      =   document.getElementById('audio_src');
+
+                // --------------------
+
+                if (window.File && window.FileReader && window.FileList && window.Blob)
+                {
+                    document.getElementById('audio_file').addEventListener('change', function(uploader)
+                    {
+                        document.title += ' -- ' + document.getElementById('audio_file').value;
+                        $type = 'audio/' + document.title.split('.').pop();
+                        file2base64(uploader.target.files[0], $type, function(src)
+                        {
+                            console.log('now playing');
+                            $audio.src  =   src;
+                            $audio.play();
+                        });
+                    }, false);
+                }
+
+                // --------------------
+
+                $writer = document.getElementById('writer');
+                $writer.addEventListener('keydown', function(ev){
+                    if ( has_ar($writer.value) )
+                        $writer.dir = 'rtl';
+                    else
+                        $writer.dir = 'ltr';
+                });
+
+                // --------------------
+
+                window.onkeydown = function(ev)
+                {
+                    //console.log(ev.which);return false;
+                    // F5 play/pause                                                            
+                    if ( (ev.which == 116) || (ev.which == 32) )
+                    {
+                        if ( $audio.paused )
+                            $audio.play();
+                        else
+                            $audio.pause();
+                        return false;
+                    }
+
+                    // + volume
+                    if ( (ev.which == 107) || (ev.which == 38) )
+                    {
+                        $audio.volume += 0.1;
+                        return false;                        
+                    }
+
+                    // - volume
+                    if ( (ev.which == 109) || (ev.which == 40) )
+                    {
+                        $audio.volume -= 0.1;
+                        return false;
+                    }
+
+                    // seek-next
+                    if ( ev.which == 39 )
+                    {
+                        $audio.currentTime += 5;
+                        return false;
+                    }
+
+                    // seek-prev
+                    if ( ev.which == 37 )
+                    {
+                        $audio.currentTime -= 5;
+                        return false;
+                    }
+                }
+
+                // --------------------
+            }
+
+            
+        </script>
+    </body>
+</html>
