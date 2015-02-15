@@ -52,6 +52,8 @@
             </div>
         </div>
 
+        <script src="//cdnjs.cloudflare.com/ajax/libs/store.js/1.3.14/store.min.js"></script>
+
         <!--  Pure javascript -->
         <!--
         Copyright (c) 2015, Mohammed Al Ashaal
@@ -92,28 +94,36 @@
             // when the window is ready .
             window.onload = function()
             {
-                $audio      =   document.getElementById('audio_src');
-
-                // --------------------
-
-                if (window.File && window.FileReader && window.FileList && window.Blob)
-                {
-                    document.getElementById('audio_file').addEventListener('change', function(uploader)
-                    {
-                        document.title += ' -- ' + document.getElementById('audio_file').value;
-                        $type = 'audio/' + document.title.split('.').pop();
-                        file2base64(uploader.target.files[0], $type, function(src)
-                        {
-                            console.log('now playing');
-                            $audio.src  =   src;
-                            $audio.play();
-                        });
-                    }, false);
+                if ( typeof store.get('writer') == 'undefined' ) {
+                    store.set('writer', '');
+                    store.set('played', 0);
+                    store.set('src', '');
                 }
 
+                $writer         =   document.getElementById('writer');
+                $writer.value   =   store.get('writer');
+                $audio          =   document.getElementById('audio_src');
+                $audio.src      =   store.get('src');
+
                 // --------------------
 
-                $writer = document.getElementById('writer');
+                document.getElementById('audio_file').addEventListener('change', function(uploader)
+                {
+                    document.title += ' -- ' + document.getElementById('audio_file').value;
+                    $type = 'audio/' + document.title.split('.').pop();
+                    file2base64(uploader.target.files[0], $type, function(src)
+                    {
+                        console.log('now playing');
+                        $audio.src      =   src;
+                        $audio.played   =   store.get('played');
+                        store.set('src', src);
+                        $audio.play();
+                    });
+                }, false);
+
+                // --------------------
+
+                console.log(store.getAll());
                 $writer.addEventListener('keydown', function(ev){
                     if ( has_ar($writer.value) )
                         $writer.dir = 'rtl';
@@ -122,6 +132,12 @@
                 });
 
                 // --------------------
+
+                setInterval(function(){
+                    store.set('writer', $writer.value);
+                    store.set('played', $audio.currentTime);
+                    console.log(store.get('dump'));
+                }, 5000);
 
                 window.onkeydown = function(ev)
                 {
