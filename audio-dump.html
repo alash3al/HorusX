@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
-
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Dump audio files online" />
-        <meta name="author" content="Audio Dumper" />
+        <meta name="description" content="Dump audio files online while you are listening to it" />
+        <meta name="author" content="Mohammed Al Ashaal" />
 
         <title>Audio Dumper</title>
 
@@ -31,7 +29,7 @@
 
             <input type="file" accept="audio/*" class="form-control" id="audio_file" />
             <br />
-            <textarea id="writer" class="form-control" style="min-height: 100px;"></textarea>
+            <textarea id="writer" class="form-control" style="min-height: 100px; max-width: 100%;"></textarea>
             <br />
             <audio src="" id="audio_src" controls="" autoplay="" style="width: 100%;">
                 <p>Your browser does not support the audio element </p>
@@ -39,11 +37,13 @@
             <br /><br />
             <div class="panel panel-default" style="padding: 15px;">
                 <ul>
-                    <li>Play|Pause: <code>F5/space</code> .</li>
+                    <li>Play|Pause: <code>F5</code> .</li>
                     <li>Next: <code>right</code> .</li>
                     <li>Prev: <code>left</code> .</li>
-                    <li>Inrease volume: <code>up/+</code> .</li>
-                    <li>Decrease volume: <code>down/-</code> .</li>
+                    <li>Inrease volume: <code>up</code> .</li>
+                    <li>Decrease volume: <code>down</code> .</li>
+                    <li>Decrease playback speed: <code>-</code> .</li>
+                    <li>Increase playback speed: <code>+</code> .</li>
                 </ul>
             </div>
             <hr />
@@ -127,7 +127,7 @@
                 {
                     //console.log(ev.which);return false;
                     // F5 play/pause                                                            
-                    if ( (ev.which == 116) || (ev.which == 32) )
+                    if ( (ev.which == 116) )
                     {
                         if ( $audio.paused )
                             $audio.play();
@@ -137,16 +137,30 @@
                     }
 
                     // + volume
-                    if ( (ev.which == 107) || (ev.which == 38) )
+                    if ( (ev.which == 38) )
                     {
                         $audio.volume += 0.1;
                         return false;                        
                     }
 
                     // - volume
-                    if ( (ev.which == 109) || (ev.which == 40) )
+                    if ( (ev.which == 40) )
                     {
                         $audio.volume -= 0.1;
+                        return false;
+                    }
+
+                    // + playpack-rate
+                    if ( (ev.which == 107) )
+                    {
+                        $audio.playbackRate += 0.1;
+                        return false;
+                    }
+
+                    // - playpack-rate
+                    if ( (ev.which == 109) )
+                    {
+                        $audio.playbackRate -= 0.1;
                         return false;
                     }
 
