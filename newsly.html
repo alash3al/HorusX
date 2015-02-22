@@ -1,3 +1,4 @@
+
 <!--
     Don't steal anything { man } ^_^
     Author: Mohammed Al Ashaal,
@@ -10,42 +11,58 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content="Lets know what is going in the whole world in real time, just search to know" />
-        <meta name="author" content="RSS Feeds" />
+        <meta name="author" content="Mohammed Al Ashaal" />
         <link rel="shortcut icon" type="image/x-icon" href="http://icons.iconarchive.com/icons/pelfusion/long-shadow-ios7/32/News-icon.png" />
 
         <title>Newsly | What is new in the world news ?</title>
 
         <!-- Bootstrap core CSS -->
-        <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/cosmo/bootstrap.min.css" rel="stylesheet" />
-        <!-- Add lobaster font CSS here -->
-        <link href="//fonts.googleapis.com/css?family=Lobster|Cabin:400,700" rel="stylesheet" />
+        <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.2/cosmo/bootstrap.min.css" rel="stylesheet" />
         <!-- Add font awesome CSS -->
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet" />
 
         <style>
-            .font-lobaster{font-family: "Lobster";}
-            body{padding: 5px;}
+            body{padding: 5px; margin-top: 50px;}
         </style>
 
     </head>
     <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a href="#" class="dropdown-toggle navbar-brand" data-toggle="dropdown" ><span class="fa fa-windows"></span> Newsly</span></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <div class="navbar-form navbar-right" style="width: 80%;">
+                <div class="form-group" style="width: 80%;">
+                  <input autocomplete="off" type="text" style="width: 80%;" id="q" placeholder="what is in your mind ?" class="form-control" />
+                </div>
+              </div>
+            </div><!--/.nav-collapse -->
+          </div>
+        </nav>
 
         <div class="container center-block" style="max-width: 650px;">
 
-            <h1 class="text-center page-header font-lobaster"><span class="fa fa-bell"></span> Newsly</span></h1>
+            <!-- TODO: <h1 class="text-center page-header font-lobaster"><span class="fa fa-bell"></span> Newsly</span></h1>
             <input class="form-control" type="text" placeholder="write and hit enter, e.g: sports, 'news' .. etc" id="q" />
-            <br />
+            <br /> -->
             <div id="results"></div>
             <div id="more" class="form-control btn btn-success hidden">load more 8 items</div>
             <br />
             <br />
-            <div class="panel panel-default" style="padding: 15px;">
-               <ul>
-                    <li>Write then press enter, e.g: <code>مصر</code> .</li>
-                    <li>You can search like google, e.g: <code>site:facebook.com</code></li>
-               </ul>
-               <hr />
-               <b class="text-center text-muted center-block"><small>Maintained by <a target="_blank" href="//alash3al.github.io/Me">@alash3al</a><!-- , part of <a target="_blank" href="//alash3al.github.io/HorusX">HorusX</a> --></small></b>
+            <div class="lead well" style="padding: 15px;">
+               A real-time news search engine, helps you to search about what you want and get results instantly .<br />
+               This application uses google news api and search using it .
+               You can easily convert this page to andriod/ios app using <a href="https://www.google.com.eg/search?q=website+to+mobile+app+converter" target="_blank">website to mobile app converter</a> .
+               <br />
+               <em class="text-muted"><small>Any issue contact <a target="_blank" href="//fb.com/alash3al">Mohammed Al Ashaal</em></small></b>
             </div>
 
         </div>
@@ -127,26 +144,27 @@
             $start          =   0;
             $min_keywords   =   1;
 
-            $('#q').keydown(function(e)
+            if ( $('#q').val().length < 1 )
+                $('#results').html('');
+
+            $('#q').keyup(function(e)
             {
                 $(this).autodir();
                 $('#more').addClass('hidden');
 
-                if ( e.keyCode == '13' && $(this).val().length >= $min_keywords )
-                {
+                $('#results').html('');
+                $('#results').getResults($(this).val(), $start);
+                $('#more').removeClass('hidden');
+
+                if ( $(this).val().length < 1 ) {
                     $('#results').html('');
-                    $('#results').getResults($(this).val(), $start);
-                    $('#more').removeClass('hidden');
-                }
-                else
-                {
                     $('#more').addClass('hidden');
                 }
             });
 
             $('#more').click(function()
             {
-                if ( $('#q').val().length >= $min_keywords )
+                if ( $('#q').val().length > 0 )
                 {
                     $start += 8;
                     $('#results').getResults($('#q').val(), $start);
