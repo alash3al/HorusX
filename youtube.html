@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Youtube Video Downloader - no additional software needed</title>
+        <meta name="description" content="Download videos from youtube without any downloader, without any time limits and without any external software/plugin/extension" />
+        <meta name="keywords" content="mp3, 3gp, youtube, mp4, webm, youtube downloader, downloader, yt2mp3, yt2mp4" />
+        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/yeti/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Parse the youtube 'get_video_info' content
+            // <0> fetch http://www.youtube.com/get_video_info?&video_id=<video_id>
+            // <1> parse the content as a http query-string, then "dump it to see video info"
+            // <2> decode it as a basic url
+            // <3> split the <1> using ','
+            // <4> loop over <3> and dump to see each step info
+            // Finally, good by ;) {@alash3al: fb, tw & github}
+
+            // -----------------------------------------------
+
+            /**
+             * Parses youtube get_video_info content and return an object with title, thumbnail and links
+             * 
+             * @param   {STRING} video_info_content
+             * 
+             * @author  Mohammed Al Ashaal <github @alash3al>
+             * @version 1.0.0
+             * 
+             * @return  {Object}
+             */
+            function get_video_info(video_info_content)
+            {
+                var info    =   parse_str(video_info_content)
+                var map     =   decodeURIComponent(info.url_encoded_fmt_stream_map).split(',')
+                var video   =   {}
+
+                video.title     =   decodeURIComponent(info.title).replace(/\+/g, ' ')
+                video.thumbnail =   decodeURIComponent(info.thumbnail_url)
+                video.links     =   []
+
+                for ( var i in map )
+                {
+                    map[i] = parse_str(map[i])
+                    video.links.push
+                    ({
+                        url: decodeURIComponent(map[i].url),
+                        type: decodeURIComponent(map[i].type).split(';')[0].split('/')[1],
+                        quality: map[i].quality
+                    })
+                }
+
+                return video
+            }
+
+            /**
+             * Parses the string into variables
+             * 
+             * @param   {STRING} string
+             * @param   {STRING} equal
+             * @param   {STRING} separator
+             * 
+             * @author  Mohammed Al Ashaal <github @alash3al>
+             * @version 1.0.0
+             * 
+             * @return  {Object}
+             */
+            function parse_str(string, equal, separator)
+            {
+                equal      =   (typeof equal       == 'undefined') ? '=' : equal
+                separator  =   (typeof separator   == 'undefined') ? '&' : separator
+                ret        =   {};
+             
+                if ( string.indexOf('?') === 0 )
+                    string = string.substr(string.indexOf('?') + 1)
+             
+                array      =   string.split(separator)
+             
+                for ( i in array ) {
+                    s = array[i].split(equal)
+                    ret[s[0].trim()] = s[1]
+                }
+             
+                return ret
+            }
+
+            /**
+             * Parse a url and return its components
+             * 
+             * @param   string url
+             * @return  Object
+             * 
+             * @author  Mohammed Al Ashaal <github @alash3al>
+             * @version 1.0.0
+             */
+            function parse_url(url)
+            {
+                dom        =   document.createElement('a');
+                dom.href   =   url;
+                obj        =
+                {
+                    scheme  :   dom.protocol.substr(0, dom.protocol.indexOf(':')),
+                    host    :   dom.hostname,
+                    port    :   dom.port,
+                    path    :   dom.pathname,
+                    query   :   parse_str(dom.search.substr(dom.search.indexOf('?') + 1)),
+                    hash    :   dom.hash.substr(dom.hash.indexOf('#'))
+                }
+                return obj;
+            }
+        </script>
+        <script>
+            $(document).ready(function()
+            {
+                $('#field').keydown(function(e)
+                {
+                    if ( e.keyCode == 13 )
+                    {
+                        var id = parse_url(this.value).query.v
+
+                        $.getJSON('http://anyorigin.com/dev/get?url=youtube.com/get_video_info%3F%26video_id%3D'+id+'&callback=?', function(data)
+                        {
+                            var video = get_video_info(data.contents)
+
+                            if ( video.links.length < 1 )
+                            {
+                                alert('Invalid video, or i cannot fetch it, sorrt :(')
+                            }
+                            else
+                            {
+                                $('#title').html(video.title)
+                                $('#thumbnail').attr('src', video.thumbnail)
+
+                                for ( var i in video.links )
+                                {
+                                    $('#links').append('<li><a download href="' + video.links[i].url + '" target="_blank">' + video.links[i].quality + '/' + video.links[i].type + '</a></li>')
+                                }
+
+                                $('#result').removeClass('hide')
+                            }
+                        })
+
+                        return false
+                    }
+                })
+            })
+        </script>
+    </head>
+    <body class="center-block" style="max-width: 600px">
+        <h1 class="text-center center-block page-header"><span class="fa fa-youtube"></span> Downloader</h1>
+        <br />
+        <form>
+            <input id="field" pattern="(http|https):\/\/(www|m).youtube.com\/watch\?(.*)v=([a-zA-Z0-9]+)(.*)" type="url" class="form-control text-center" placeholder="Put youtube video url here then press enter"> <br />
+        </form>
+        <div id="result" class="hide center-block text-center well" style="padding 10px" id="info">
+            <b id="title" class="text-center center-block">Title</b> <br />
+            <img id="thumbnail" src="" style="width: 150px; height: 150px" class="img-responsive img-circle img-rounder center-block">
+            <h3><span class="fa fa-download"></span> Available Downloads </h3>
+            <ul id="links" style="text-align: left"></ul>
+        </div>
+        <hr />
+        <i class="center-block text-center">Copyright (c) 2015 <a target="_blank" href="//www.facebook.com/alash3al">Mohammed Al Ashaal</a>, <a target="_blank" href="//www.facebook.com/groups/hld.community/">HLD Community</a></i>
+    </body>
+</html>
